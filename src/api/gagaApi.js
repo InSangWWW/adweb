@@ -3,8 +3,8 @@ import axios from 'axios';
 const API_URL = 'https://gagaon.com/api/external/items.php';
 const AUTH_HEADERS = {
   'Content-Type': 'application/json',
-  'X-Auth-Id': process.env.REACT_APP_X_AUTH_ID,
-  'X-Auth-Key': process.env.REACT_APP_X_AUTH_KEY
+  'X-Auth-Id': 'dongbang',
+  'X-Auth-Key': 'dgm8gctb5c3xusmqtkevivs1cr82swru'
 };
 
 // API 호출을 위한 인스턴스 생성

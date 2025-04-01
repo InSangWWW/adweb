@@ -15,9 +15,20 @@ const ProductDetail = () => {
   const [selectedOption, setSelectedOption] = useState('');
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [mainSwiper, setMainSwiper] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // productId를 useProductDetailQuery에 전달
   const { data: product, isLoading, error } = useProductDetailQuery(productId);
+  
+  // 화면 크기 변경 감지를 위한 useEffect
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Swiper 업데이트를 위한 useEffect
   useEffect(() => {
@@ -46,7 +57,7 @@ const ProductDetail = () => {
               modules={[Navigation, Pagination, Thumbs]}
               navigation
               pagination={{ clickable: true }}
-              thumbs={{ swiper: thumbsSwiper }}
+              thumbs={!isMobile ? { swiper: thumbsSwiper } : undefined}
               className="swiper-main"
               onSwiper={setMainSwiper}
               slidesPerView={1}
@@ -61,22 +72,24 @@ const ProductDetail = () => {
               ))}
             </Swiper>
             
-            <Swiper
-              onSwiper={setThumbsSwiper}
-              modules={[Thumbs]}
-              watchSlidesProgress
-              slidesPerView={4}
-              spaceBetween={10}
-              className="swiper-thumbnails"
-              observer={true}
-              observeParents={true}
-            >
-              {product.images.map((image, index) => (
-                <SwiperSlide key={index}>
-                  <img src={image} alt={`${product.name} 썸네일 ${index + 1}`} />
-                </SwiperSlide>
-              ))}
-            </Swiper>
+            {!isMobile && (
+              <Swiper
+                onSwiper={setThumbsSwiper}
+                modules={[Thumbs]}
+                watchSlidesProgress
+                slidesPerView={4}
+                spaceBetween={10}
+                className="swiper-thumbnails"
+                observer={true}
+                observeParents={true}
+              >
+                {product.images.map((image, index) => (
+                  <SwiperSlide key={index}>
+                    <img src={image} alt={`${product.name} 썸네일 ${index + 1}`} />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            )}
           </ImageGallery>
         </ImageGalleryWrapper>
         
@@ -117,13 +130,12 @@ const ProductDetail = () => {
             </OptionSelect>
           )}
           <ExternalLinkButton 
-  href={`https://gagaon.com/shop/item.php?it_id=${productId}`}
-  target="_blank"
-  rel="noopener noreferrer"
->
-  가가온 사이트에서 보기
-</ExternalLinkButton>
-
+            href={`https://gagaon.com/shop/item.php?it_id=${productId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            가가온 사이트에서 보기
+          </ExternalLinkButton>
         </ProductInfo>
       </ProductHeader>
       
@@ -151,7 +163,6 @@ const ProductHeader = styled.div`
   }
 `;
 
-// 새로 추가한 래퍼 컴포넌트
 const ImageGalleryWrapper = styled.div`
   width: 50%;
   margin-right: 40px;
@@ -168,12 +179,17 @@ const ImageGallery = styled.div`
   width: 100%;
   
   .swiper-main {
-    width: 100%; /* 50%에서 100%로 변경 */
+    width: 100%;
     height: 400px;
     margin-bottom: 20px;
     
+    @media (max-width: 768px) {
+      height: 300px; /* 모바일에서는 높이 줄임 */
+      margin-bottom: 0; /* 썸네일이 없으므로 하단 여백 제거 */
+    }
+    
     .swiper-slide {
-      width: 100% !important; /* 강제로 너비 지정 */
+      width: 100% !important;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -194,7 +210,7 @@ const ImageGallery = styled.div`
     .swiper-slide {
       opacity: 0.4;
       cursor: pointer;
-      width: auto !important; /* 강제로 너비 지정 */
+      width: auto !important;
       
       &.swiper-slide-thumb-active {
         opacity: 1;
@@ -205,6 +221,10 @@ const ImageGallery = styled.div`
         height: 100%;
         object-fit: cover;
       }
+    }
+    
+    @media (max-width: 768px) {
+      display: none; /* 모바일에서 썸네일 숨김 */
     }
   }
 `;
