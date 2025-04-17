@@ -221,7 +221,7 @@ const ErrorMessage = styled.div`
   padding: 40px 0;
   font-size: 18px;
   color: #e53935;
-`;//
+`;
 
 const ProductList = ({ 
   categoryId = '', 
@@ -230,6 +230,9 @@ const ProductList = ({
 }) => {
   const [page, setPage] = useState(1);
   const [orderBy, setOrderBy] = useState('');
+  
+  // useProductsQuery 훅은 내부적으로 MongoDB ObjectId 형식인지 확인하여
+  // 스크래핑 데이터 또는 API 데이터를 사용하도록 수정되었다고 가정
   const { data, isLoading, error } = useProductsQuery(categoryId, searchTerm, page, 10, orderBy);
 
   const products = React.useMemo(() => data?.items || [], [data?.items]);

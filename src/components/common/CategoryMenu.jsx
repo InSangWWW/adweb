@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { useCategories } from '../hooks/useScrapedProducts'; // 새로 추가한 훅
 
 const CategoryContainer = styled.div`
   position: absolute;
@@ -107,6 +108,22 @@ const CategoryList = styled.ul`
 
 const CategoryMenu = () => {
   const [openCategories, setOpenCategories] = useState({});
+  const { data: categories, isLoading, error } = useCategories(); // 스크래핑 데이터 사용
+  
+  // 메인 카테고리 그룹화 (caId 기준)
+  const groupedCategories = React.useMemo(() => {
+    if (!categories) return {};
+    
+    // 카테고리 ID 앞 두 자리로 그룹화
+    return categories.reduce((acc, category) => {
+      const mainId = category.caId.substring(0, 2);
+      if (!acc[mainId]) {
+        acc[mainId] = [];
+      }
+      acc[mainId].push(category);
+      return acc;
+    }, {});
+  }, [categories]);
   
   const toggleCategory = (id) => {
     setOpenCategories(prev => ({
@@ -114,6 +131,9 @@ const CategoryMenu = () => {
       [id]: !prev[id]
     }));
   };
+  
+  if (isLoading) return <div>로딩 중...</div>;
+  if (error) return <div>카테고리를 불러올 수 없습니다.</div>;
   
   return (
     <CategoryContainer id="category-menu">
@@ -124,6 +144,8 @@ const CategoryMenu = () => {
         <li className="main">
           <Link to="/shop/list">전체</Link>
         </li>
+        
+        {/* 복지용구(구입) */}
         <li className={`main ${openCategories['10'] ? 'opened' : ''}`}>
           <Link to="/category/10">복지용구(구입)</Link>
           <button 
@@ -133,21 +155,15 @@ const CategoryMenu = () => {
           ></button>
           <ul className="sub depth2">
             <li><Link to="/category/10">전체</Link></li>
-            <li><Link to="/category/1090">이동변기</Link></li>
-            <li><Link to="/category/10b0">목욕의자</Link></li>
-            <li><Link to="/category/1050">안전손잡이</Link></li>
-            <li><Link to="/category/1020">미끄럼방지매트</Link></li>
-            <li><Link to="/category/1030">미끄럼방지양말</Link></li>
-            <li><Link to="/category/1010">간이변기</Link></li>
-            <li><Link to="/category/10g0">지팡이</Link></li>
-            <li><Link to="/category/1070">욕창예방매트리스</Link></li>
-            <li><Link to="/category/1080">욕창예방방석</Link></li>
-            <li><Link to="/category/10e0">자세변환용구</Link></li>
-            <li><Link to="/category/1040">성인용보행기</Link></li>
-            <li><Link to="/category/1060">요실금팬티</Link></li>
-            <li><Link to="/category/10c0">경사로(실내)</Link></li>
+            {groupedCategories['10']?.map(category => (
+              <li key={category._id}>
+                <Link to={`/category/${category._id}`}>{category.name}</Link>
+              </li>
+            ))}
           </ul>
         </li>
+        
+        {/* 복지용구(대여) */}
         <li className={`main ${openCategories['30'] ? 'opened' : ''}`}>
           <Link to="/category/30">복지용구(대여)</Link>
           <button 
@@ -157,12 +173,15 @@ const CategoryMenu = () => {
           ></button>
           <ul className="sub depth2">
             <li><Link to="/category/30">전체</Link></li>
-            <li><Link to="/category/3010">수동휠체어</Link></li>
-            <li><Link to="/category/3020">전동침대</Link></li>
-            <li><Link to="/category/3040">욕창예방매트리스</Link></li>
-            <li><Link to="/category/3050">이동욕조</Link></li>
+            {groupedCategories['30']?.map(category => (
+              <li key={category._id}>
+                <Link to={`/category/${category._id}`}>{category.name}</Link>
+              </li>
+            ))}
           </ul>
         </li>
+        
+        {/* 비급여상품 */}
         <li className={`main ${openCategories['40'] ? 'opened' : ''}`}>
           <Link to="/category/40">비급여상품</Link>
           <button 
@@ -172,14 +191,11 @@ const CategoryMenu = () => {
           ></button>
           <ul className="sub depth2">
             <li><Link to="/category/40">전체</Link></li>
-            <li><Link to="/category/40g0">환자식</Link></li>
-            <li><Link to="/category/40f0">배변보조용품</Link></li>
-            <li><Link to="/category/4020">보행보조용품</Link></li>
-            <li><Link to="/category/4030">생활지원용품</Link></li>
-            <li><Link to="/category/4050">의료용품</Link></li>
-            <li><Link to="/category/4070">욕창용품</Link></li>
-            <li><Link to="/category/4060">보장구</Link></li>
-            <li><Link to="/category/40a0">기타</Link></li>
+            {groupedCategories['40']?.map(category => (
+              <li key={category._id}>
+                <Link to={`/category/${category._id}`}>{category.name}</Link>
+              </li>
+            ))}
           </ul>
         </li>
       </CategoryList>

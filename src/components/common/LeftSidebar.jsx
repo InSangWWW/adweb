@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import { useCategories } from '../../hooks/useScrapedProducts'; // 새로 추가한 훅
 
 const LeftSidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { data: categories, isLoading, error } = useCategories(); // 스크래핑 데이터 사용
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  // 카테고리 데이터 로딩 중이거나 오류 발생 시 처리
+  if (isLoading) return <div>카테고리 로딩 중...</div>;
+  if (error) return <div>카테고리를 불러올 수 없습니다.</div>;
 
   return (
     <>
@@ -28,21 +34,14 @@ const LeftSidebar = () => {
                 <Link to="/category/3">복지용구</Link>
               </p>
               <ul className="submenu">
-                <li className="lmenu"><Link to="/category/3020"><span>전동침대</span></Link></li>
-                <li className="lmenu"><Link to="/category/3010"><span>수동휠체어</span></Link></li>
-                <li className="lmenu"><Link to="/category/3040"><span>욕창예방매트리스</span></Link></li>
-                <li className="lmenu"><Link to="/category/1080"><span>욕창예방방석</span></Link></li>
-                <li className="lmenu"><Link to="/category/1040"><span>성인용보행기</span></Link></li>
-                <li className="lmenu"><Link to="/category/1090"><span>이동변기</span></Link></li>
-                <li className="lmenu"><Link to="/category/10b0"><span>목욕의자</span></Link></li>
-                <li className="lmenu"><Link to="/category/3050"><span>이동욕조</span></Link></li>
-                <li className="lmenu"><Link to="/category/10g0"><span>지팡이</span></Link></li>
-                <li className="lmenu"><Link to="/category/1010"><span>간이변기</span></Link></li>
-                <li className="lmenu"><Link to="/category/10e0"><span>자세변환용구</span></Link></li>
-                <li className="lmenu"><Link to="/category/1050"><span>안전손잡이</span></Link></li>
-                <li className="lmenu"><Link to="/category/1020"><span>미끄럼방지매트</span></Link></li>
-                <li className="lmenu"><Link to="/category/1060"><span>요실금팬티</span></Link></li>
-                <li className="lmenu"><Link to="/category/1030"><span>미끄럼방지양말</span></Link></li>
+                {/* 스크래핑한 카테고리 데이터 사용 */}
+                {categories.map(category => (
+                  <li key={category._id} className="lmenu">
+                    <Link to={`/category/${category._id}`}>
+                      <span>{category.name}</span>
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </li>
           </ul>
@@ -54,6 +53,7 @@ const LeftSidebar = () => {
     </>
   );
 };
+
 
 // Styled Components 정의
 const StyledSidebar = styled.div`
