@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
+const cors = require('cors');
 
 // Express에서 JSON 사용 설정
 app.use(express.json());
+app.use(cors());
 
 // MongoDB 연결 (옵션 제거)
 mongoose.connect('mongodb://localhost:27017/test')
